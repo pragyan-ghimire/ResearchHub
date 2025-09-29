@@ -6,15 +6,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Download, CalendarDays, Users, Eye } from 'lucide-react';
+import { Bookmark, Download, CalendarDays, Users } from 'lucide-react';
 import { format } from 'date-fns';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 
 type PaperPageProps = {
   params: {
@@ -61,6 +54,13 @@ export default function PaperPage({ params }: PaperPageProps) {
                     ))}
                 </div>
             </div>
+
+            <div className="mt-12">
+              <h2 className="font-headline text-2xl mb-4">Paper Preview</h2>
+              <div className="aspect-[4/5] rounded-lg border overflow-hidden">
+                <iframe src={paper.pdfUrl} width="100%" height="100%" />
+              </div>
+            </div>
           </article>
         </div>
         <div className="md:col-span-1">
@@ -74,35 +74,17 @@ export default function PaperPage({ params }: PaperPageProps) {
                 data-ai-hint="research paper abstract"
               />
             </div>
-            <div className="space-y-2">
-               <Dialog>
-                <DialogTrigger asChild>
-                  <Button size="lg" className="w-full">
-                    <Eye className="mr-2 h-4 w-4" />
-                    Preview
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl h-[90vh]">
-                  <DialogHeader>
-                    <DialogTitle className="font-headline">{paper.title}</DialogTitle>
-                  </DialogHeader>
-                  <div className="h-full w-full">
-                    <iframe src={paper.pdfUrl} width="100%" height="100%" />
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" size="lg">
-                  <Bookmark className="mr-2 h-4 w-4" />
-                  Bookmark
+                    <Bookmark className="mr-2 h-4 w-4" />
+                    Bookmark
                 </Button>
                 <Button size="lg" asChild>
-                  <a href={paper.pdfUrl} download>
+                    <a href={paper.pdfUrl} download>
                     <Download className="mr-2 h-4 w-4" />
                     Download
-                  </a>
+                    </a>
                 </Button>
-              </div>
             </div>
           </div>
         </div>
