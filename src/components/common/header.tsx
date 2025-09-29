@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BookCheck, LogIn, LogOut, Upload, UserPlus, LayoutDashboard } from 'lucide-react';
+import { ThemeToggle } from './theme-toggle';
 
 const navLinks = [
   { href: '/bookmarks', label: 'Bookmarks', icon: BookCheck },
@@ -35,6 +36,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
+          <ThemeToggle />
           <UserMenu />
         </div>
       </div>
