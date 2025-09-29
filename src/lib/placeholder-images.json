@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "paper-1",
+      "description": "Abstract representation of neural networks.",
+      "imageUrl": "https://images.unsplash.com/photo-1644088379091-d574269d422f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxuZXVyYWwlMjBuZXR3b3JrfGVufDB8fHx8MTc1OTA4Mzg4Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "neural network"
+    },
+    {
+      "id": "paper-2",
+      "description": "Illustration of quantum computing concepts.",
+      "imageUrl": "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxxdWFudHVtJTIwY29tcHV0aW5nfGVufDB8fHx8MTc1OTE0NTUzNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "quantum computing"
+    },
+    {
+      "id": "paper-3",
+      "description": "Visual of data structures and algorithms.",
+      "imageUrl": "https://images.unsplash.com/photo-1750020113747-813d3d1688c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxkYXRhJTIwc3RydWN0dXJlc3xlbnwwfHx8fDE3NTkxNDU1MzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data structures"
+    },
+    {
+      "id": "paper-4",
+      "description": "Artistic rendering of a blockchain.",
+      "imageUrl": "https://images.unsplash.com/photo-1643000296927-f4f1c8722b7d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxibG9ja2NoYWluJTIwdGVjaG5vbG9neXxlbnwwfHx8fDE3NTkxMzg3NDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "blockchain technology"
+    },
+    {
+      "id": "paper-5",
+      "description": "Image related to bioinformatics and DNA sequencing.",
+      "imageUrl": "https://images.unsplash.com/photo-1705256811175-b1e3398d50e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiaW9pbmZvcm1hdGljcyUyMGRuYXxlbnwwfHx8fDE3NTkxNDU1MzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bioinformatics dna"
+    },
+    {
+      "id": "paper-6",
+      "description": "Representation of cyber security concepts.",
+      "imageUrl": "https://images.unsplash.com/photo-1618482914248-29272d021005?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjeWJlciUyMHNlY3VyaXR5fGVufDB8fHx8MTc1OTA1NTUxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cyber security"
+    },
+    {
+      "id": "paper-7",
+      "description": "Abstract art representing machine learning.",
+      "imageUrl": "https://images.unsplash.com/photo-1504639725590-34d0984388bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYWNoaW5lJTIwbGVhcm5pbmd8ZW58MHx8fHwxNzU5MDc5OTQ1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "machine learning"
+    },
+    {
+      "id": "paper-8",
+      "description": "Climate change data visualization.",
+      "imageUrl": "https://images.unsplash.com/photo-1562089727-90aa996a6f18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjbGltYXRlJTIwY2hhbmdlfGVufDB8fHx8MTc1OTA3Njg0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "climate change"
+    }
+  ]
 }
