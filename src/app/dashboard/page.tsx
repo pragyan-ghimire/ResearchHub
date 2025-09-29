@@ -85,7 +85,7 @@ export default function DashboardPage() {
             <TabsContent value="bookmarks" className="mt-6">
                 <h2 className="text-2xl font-headline font-bold mb-4">My Bookmarks</h2>
                 <PaperList papers={bookmarkedPapers} />
-            </TubsContent>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
