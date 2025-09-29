@@ -1,10 +1,20 @@
+
+'use client';
+
 import { getPaperById } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Download, CalendarDays, Users } from 'lucide-react';
+import { Bookmark, Download, CalendarDays, Users, Eye } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 type PaperPageProps = {
   params: {
@@ -64,17 +74,35 @@ export default function PaperPage({ params }: PaperPageProps) {
                 data-ai-hint="research paper abstract"
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="lg">
-                <Bookmark className="mr-2 h-4 w-4" />
-                Bookmark
-              </Button>
-              <Button size="lg" asChild>
-                <a href={paper.pdfUrl} download>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </a>
-              </Button>
+            <div className="space-y-2">
+               <Dialog>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="w-full">
+                    <Eye className="mr-2 h-4 w-4" />
+                    Preview
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl h-[90vh]">
+                  <DialogHeader>
+                    <DialogTitle className="font-headline">{paper.title}</DialogTitle>
+                  </DialogHeader>
+                  <div className="h-full w-full">
+                    <iframe src={paper.pdfUrl} width="100%" height="100%" />
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="lg">
+                  <Bookmark className="mr-2 h-4 w-4" />
+                  Bookmark
+                </Button>
+                <Button size="lg" asChild>
+                  <a href={paper.pdfUrl} download>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
