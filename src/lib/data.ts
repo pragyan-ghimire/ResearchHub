@@ -8,6 +8,7 @@ export type Paper = {
   bookmarked: boolean;
   uploadDate: string;
   tags: string[];
+  uploaderId?: string;
 };
 
 const papers: Paper[] = [
@@ -21,6 +22,7 @@ const papers: Paper[] = [
     bookmarked: true,
     uploadDate: '2023-10-26',
     tags: ['Machine Learning', 'AI', 'Semantic Search'],
+    uploaderId: 'user-123',
   },
   {
     id: '2',
@@ -43,6 +45,7 @@ const papers: Paper[] = [
     bookmarked: true,
     uploadDate: '2023-09-15',
     tags: ['Data Structures', 'Algorithms', 'Big Data'],
+    uploaderId: 'user-123',
   },
   {
     id: '4',
@@ -87,6 +90,7 @@ const papers: Paper[] = [
     bookmarked: false,
     uploadDate: '2023-10-30',
     tags: ['Neural Networks', 'Computer Vision', 'AI'],
+    uploaderId: 'user-123',
   },
   {
     id: '8',
@@ -111,4 +115,8 @@ export function getPaperById(id: string): Paper | undefined {
 
 export function getBookmarkedPapers(): Paper[] {
   return papers.filter((paper) => paper.bookmarked);
+}
+
+export function getUploadedPapersByUserId(userId: string): Paper[] {
+    return papers.filter(paper => paper.uploaderId === userId);
 }

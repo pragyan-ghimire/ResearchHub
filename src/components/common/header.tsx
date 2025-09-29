@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BookCheck, LogIn, LogOut, Upload, UserPlus } from 'lucide-react';
+import { BookCheck, LogIn, LogOut, Upload, UserPlus, LayoutDashboard } from 'lucide-react';
 
 const navLinks = [
   { href: '/bookmarks', label: 'Bookmarks', icon: BookCheck },
@@ -44,14 +44,14 @@ export default function Header() {
 
 function UserMenu() {
   // In a real app, you'd get user state from an auth provider.
-  const isLoggedIn = false;
+  const isLoggedIn = true;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src="/avatars/01.png" alt="User avatar" />
+            <AvatarImage src="https://picsum.photos/seed/avatar/100/100" alt="User avatar" />
             <AvatarFallback>U</AvatarFallback>
           </Avatar>
         </Button>
@@ -61,12 +61,19 @@ function UserMenu() {
           <>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">User Name</p>
+                <p className="text-sm font-medium leading-none">Alex Johnson</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  user@example.com
+                  alex.j@example.com
                 </p>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+             <DropdownMenuItem asChild>
+              <Link href="/dashboard">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut className="mr-2 h-4 w-4" />
