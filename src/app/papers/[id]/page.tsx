@@ -45,6 +45,15 @@ export default function PaperPage({ params }: PaperPageProps) {
             </div>
             
             <div className="mt-8">
+                <h3 className="font-headline text-xl mb-3">Categories</h3>
+                <div className="flex flex-wrap gap-2">
+                    {paper.categories.map((category) => (
+                        <Badge key={category} variant="default" className="text-sm px-3 py-1">{category}</Badge>
+                    ))}
+                </div>
+            </div>
+
+            <div className="mt-8">
                 <h3 className="font-headline text-xl mb-3">Tags</h3>
                 <div className="flex flex-wrap gap-2">
                     {paper.tags.map((tag) => (

@@ -46,6 +46,11 @@ export default function UploadPage() {
                 <Textarea id="abstract" placeholder="Start with a brief summary of your research..." required  rows={6} />
               </div>
               <div className="grid gap-2">
+                <Label htmlFor="categories">Categories</Label>
+                <Input id="categories" placeholder="Science, Technology" />
+                 <p className="text-sm text-muted-foreground">Separate categories with a comma.</p>
+              </div>
+              <div className="grid gap-2">
                 <Label htmlFor="tags">Tags / Keywords</Label>
                 <Input id="tags" placeholder="Machine Learning, AI, Semantic Search" />
                  <p className="text-sm text-muted-foreground">Separate tags with a comma.</p>

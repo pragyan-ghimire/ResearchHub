@@ -8,6 +8,7 @@ export type Paper = {
   bookmarked: boolean;
   uploadDate: string;
   tags: string[];
+  categories: string[];
   uploaderId?: string;
 };
 
@@ -22,6 +23,7 @@ const papers: Paper[] = [
     bookmarked: true,
     uploadDate: '2023-10-26',
     tags: ['Machine Learning', 'AI', 'Semantic Search'],
+    categories: ['Technology', 'Artificial Intelligence'],
     uploaderId: 'user-123',
   },
   {
@@ -34,6 +36,7 @@ const papers: Paper[] = [
     bookmarked: false,
     uploadDate: '2023-10-22',
     tags: ['Quantum Computing', 'Cryptography', 'Security'],
+    categories: ['Technology', 'Security'],
   },
   {
     id: '3',
@@ -45,6 +48,7 @@ const papers: Paper[] = [
     bookmarked: true,
     uploadDate: '2023-09-15',
     tags: ['Data Structures', 'Algorithms', 'Big Data'],
+    categories: ['Computer Science', 'Data Management'],
     uploaderId: 'user-123',
   },
   {
@@ -57,6 +61,7 @@ const papers: Paper[] = [
     bookmarked: false,
     uploadDate: '2023-08-01',
     tags: ['Blockchain', 'Identity Management', 'Decentralization'],
+    categories: ['Technology', 'Security'],
   },
   {
     id: '5',
@@ -68,6 +73,7 @@ const papers: Paper[] = [
     bookmarked: false,
     uploadDate: '2023-11-05',
     tags: ['Bioinformatics', 'Gene Editing', 'CRISPR'],
+    categories: ['Biology', 'Medicine'],
   },
   {
     id: '6',
@@ -79,6 +85,7 @@ const papers: Paper[] = [
     bookmarked: true,
     uploadDate: '2023-07-18',
     tags: ['Cyber Security', 'AI', 'Threat Detection'],
+    categories: ['Technology', 'Security'],
   },
   {
     id: '7',
@@ -90,6 +97,7 @@ const papers: Paper[] = [
     bookmarked: false,
     uploadDate: '2023-10-30',
     tags: ['Neural Networks', 'Computer Vision', 'AI'],
+    categories: ['Technology', 'Artificial Intelligence'],
     uploaderId: 'user-123',
   },
   {
@@ -102,6 +110,7 @@ const papers: Paper[] = [
     bookmarked: false,
     uploadDate: '2023-09-02',
     tags: ['Climate Change', 'Ecosystems', 'Modeling'],
+    categories: ['Environmental Science', 'Climate'],
   },
 ];
 
