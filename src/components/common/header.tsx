@@ -1,3 +1,6 @@
+"use client";
+
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Logo from './logo';
 import { Button } from '@/components/ui/button';
@@ -19,6 +22,8 @@ const navLinks = [
 ];
 
 export default function Header() {
+  
+  const {status, data: session} = useSession();
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
@@ -37,7 +42,18 @@ export default function Header() {
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <ThemeToggle />
-          <UserMenu />
+          {status === "authenticated" && <UserMenu />}
+          {status === "unauthenticated" && 
+          <>
+            <Link href="/api/auth/signin">
+              <span>Login</span>
+            </Link>
+            <Link href="/signup">
+              <span>Sign Up</span>
+            </Link>
+          </>
+          }
+          
         </div>
       </div>
     </header>
@@ -46,7 +62,6 @@ export default function Header() {
 
 function UserMenu() {
   // In a real app, you'd get user state from an auth provider.
-  const isLoggedIn = true;
 
   return (
     <DropdownMenu>
@@ -59,7 +74,6 @@ function UserMenu() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        {isLoggedIn ? (
           <>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
@@ -77,27 +91,13 @@ function UserMenu() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </>
-        ) : (
-          <>
-            <DropdownMenuItem asChild>
-              <Link href="/login">
-                <LogIn className="mr-2 h-4 w-4" />
-                <span>Login</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/signup">
-                <UserPlus className="mr-2 h-4 w-4" />
-                <span>Sign Up</span>
+            <DropdownMenuItem asChild>  
+              <Link href="/api/auth/signout">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
               </Link>
             </DropdownMenuItem>
           </>
-        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

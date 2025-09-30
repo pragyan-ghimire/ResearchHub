@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/common/header';
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/common/theme-provider';
+import AuthProvider from './auth/Provider';
 
 export const metadata: Metadata = {
   title: 'ScholarLink',
@@ -30,10 +31,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-          </div>
+          <AuthProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+            </div>
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>
