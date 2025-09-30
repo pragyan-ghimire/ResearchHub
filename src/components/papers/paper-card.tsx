@@ -28,6 +28,12 @@ export default function PaperCard({ paper }: PaperCardProps) {
     e.stopPropagation();
     setIsBookmarked(!isBookmarked);
   };
+  
+  const handleDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(paper.pdfUrl, '_blank');
+  }
 
   return (
     <Link href={`/papers/${paper.id}`} className="block">
@@ -72,11 +78,9 @@ export default function PaperCard({ paper }: PaperCardProps) {
               <Bookmark className="h-5 w-5" />
             )}
           </Button>
-          <Button variant="outline" size="sm" asChild onClick={(e) => { e.stopPropagation(); }}>
-            <a href={paper.pdfUrl} download>
+          <Button variant="outline" size="sm" onClick={handleDownload}>
               <Download className="mr-2 h-4 w-4" />
               Download
-            </a>
           </Button>
         </CardFooter>
       </Card>
