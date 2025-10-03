@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { UploadCloud } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import type { CheckedState } from '@radix-ui/react-checkbox';
 
 const popularCategories = [
   'Technology',
@@ -93,8 +94,8 @@ export default function UploadPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="category-other"
-                      onCheckedChange={() =>
-                        setShowOtherCategory(!showOtherCategory)
+                      onCheckedChange={(checked: CheckedState) =>
+                        setShowOtherCategory(!!checked)
                       }
                     />
                     <Label htmlFor="category-other" className="font-normal">
