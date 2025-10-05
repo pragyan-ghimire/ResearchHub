@@ -14,69 +14,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  name          String?
-  password      String
-  bio           String?
-  avatarUrl     String? 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  papers        Paper[] // Papers uploaded by the user
-  bookmarks     Paper[]  @relation("UserBookmarks")
-  searchHistory Search[]
+model Account {
+  id                 String    @id @default(cuid())
+  userId             String
+  providerType       String
+  providerId         String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  user               User      @relation(fields: [userId], references: [id])
+
+  @@unique([providerId, providerAccountId])
 }
 
-//   citations    Int        @default(0) add later
-model Paper {
-  id           String     @id @default(cuid())
-  title        String
-  abstract     String     @db.Text
-  pdfUrl       String?
-  doi          String?    @unique
-  publishedAt  DateTime?
-  uploadedAt   DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  uploadedBy   User       @relation(fields: [userId], references: [id])
+model Session {
+  id           String   @id @default(cuid())
   userId       String
-  bookmarkedBy User[]     @relation("UserBookmarks")
-  downloads    Int        @default(0)
-  authors      Author[]
-  tags         Tag[]
-  categories   Category[]
+  expires      DateTime
+  sessionToken String   @unique
+  accessToken  String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
 }
 
-model Author {
-  id        String   @id @default(cuid())
-  name      String
-  papers    Paper[]
-  createdAt DateTime @default(now())
-
-  @@unique([name])
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  hashedPassword String?
+  emailVerified  DateTime?
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  accounts       Account[]
+  sessions       Session[]
 }
 
-model Tag {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  papers    Paper[]
-  createdAt DateTime @default(now())
-}
+model VerificationRequest {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-model Search {
-  id        String   @id @default(cuid())
-  query     String
-  filters   Json?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-}
-
-model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  papers      Paper[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@unique([identifier, token])
 }
