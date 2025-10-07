@@ -52,6 +52,8 @@ model User {
   updatedAt      DateTime  @updatedAt
   accounts       Account[]
   sessions       Session[]
+  papers         Paper[]
+  bookmarks      Paper[]   @relation("UserBookmarks")
 }
 
 model VerificationRequest {
@@ -63,4 +65,45 @@ model VerificationRequest {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
+}
+
+model Paper {
+  id           String     @id @default(cuid())
+  title        String
+  abstract     String     @db.Text
+  pdfUrl       String?
+  publishedAt  DateTime?
+  uploadedAt   DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  uploadedBy   User       @relation(fields: [userId], references: [id])
+  userId       String
+  bookmarkedBy User[]     @relation("UserBookmarks")
+  authors      Author[]
+  tags         Tag[]
+  categories   Category[]
+}
+
+model Author {
+  id        String   @id @default(cuid())
+  name      String
+  papers    Paper[]
+  createdAt DateTime @default(now())
+
+  @@unique([name])
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  papers    Paper[]
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  papers      Paper[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
