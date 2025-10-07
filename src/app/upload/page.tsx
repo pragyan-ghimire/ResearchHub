@@ -16,6 +16,7 @@ import { UploadCloud } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { CldUploadWidget } from 'next-cloudinary';
 
 const popularCategories = [
   "Technology",
@@ -30,12 +31,31 @@ export default function UploadPage() {
   const [showOtherCategory, setShowOtherCategory] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [pdfUrl, setPdfUrl] = useState<string>("");
+
+  const handlePdfUpload = (result: any) => {
+    // console.log("Upload result:", result);
+    setPdfUrl(result.info.secure_url);
+    toast({
+      title: "Success",
+      description: "PDF uploaded successfully",
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      if (!pdfUrl) {
+        toast({
+          title: "Error",
+          description: "Please upload a PDF file",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const formData = new FormData(e.currentTarget as HTMLFormElement);
       const otherCategory = showOtherCategory
         ? formData.get("other-category")?.toString()
@@ -60,7 +80,7 @@ export default function UploadPage() {
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
-        pdfUrl: formData.get("pdf-file"),
+        pdfUrl: pdfUrl,
       };
       console.log("Submitting data:", data);
 
@@ -219,15 +239,35 @@ export default function UploadPage() {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="pdf-file">PDF File</Label>
-                <Input
-                  id="pdf-file"
-                  name="pdf-file"
-                  type="file"
-                  accept=".pdf"
-                  required
-                  className="pt-2"
-                />
+                <Label>PDF File</Label>
+                <CldUploadWidget
+                  uploadPreset="z409w9o5"
+                  options={{
+                    maxFiles: 1,
+                    sources: ['local'],
+                    resourceType: "raw",
+                    clientAllowedFormats: ["pdf"],
+                  }}
+                  onSuccess={handlePdfUpload}
+                >
+                  {({ open }) => (
+                    <div className="flex flex-col gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => open()}
+                      >
+                        <UploadCloud className="mr-2 h-4 w-4" />
+                        Upload PDF
+                      </Button>
+                      {pdfUrl && (
+                        <p className="text-sm text-muted-foreground">
+                          PDF uploaded successfully
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </CldUploadWidget>
               </div>
               <div className="flex justify-end">
                 <Button type="submit" size="lg" disabled={loading}>
