@@ -210,6 +210,78 @@ export async function getPapersByTags(req: NextRequest) {
   }
 }
 
+// GET papers uploaded by current user
+export async function getPapersByCurrentUser(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(req.url);
+    const { page, limit } = PaginationSchema.parse({
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+    });
+
+    const skip = (page - 1) * limit;
+
+    const [papers, total] = await Promise.all([
+      prisma.paper.findMany({
+        where: {
+          uploadedBy: {
+            id: session.user.id
+          },
+        },
+        orderBy: { uploadedAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          authors: true,
+          categories: true,
+          tags: true,
+          uploadedBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          bookmarkedBy: {
+            where: {
+              id: session.user.id
+            },
+            select: {
+              id: true
+            }
+          }
+        },
+      }),
+      prisma.paper.count({
+        where: {
+          uploadedBy: {
+            id: session.user.id
+          },
+        },
+      }),
+    ]);
+
+    return NextResponse.json({
+      papers,
+      pagination: {
+        total,
+        pages: Math.ceil(total / limit),
+        currentPage: page,
+        limit,
+      },
+    });
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 // GET papers by authors
 export async function getPapersByAuthors(req: NextRequest) {
   try {
@@ -300,7 +372,7 @@ export async function getPapersByBookmarks(req: NextRequest) {
         where: {
           bookmarkedBy: {
             some: {
-              email: session.user.email as string,
+              id: session.user.id as string,
             },
           },
         },
@@ -317,13 +389,21 @@ export async function getPapersByBookmarks(req: NextRequest) {
               name: true,
             },
           },
+          bookmarkedBy: {
+            where: {
+              id: session.user.id as string
+            },
+            select: {
+              id: true
+            }
+          }
         },
       }),
       prisma.paper.count({
         where: {
           bookmarkedBy: {
             some: {
-              email: session.user.email as string,
+              id: session.user.id as string,
             },
           },
         },
