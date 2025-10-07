@@ -1,31 +1,103 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import type { CheckedState } from '@radix-ui/react-checkbox';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { UploadCloud } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { CheckedState } from "@radix-ui/react-checkbox";
+import { useToast } from "@/hooks/use-toast";
 
 const popularCategories = [
-  'Technology',
-  'Science',
-  'Health',
-  'Business',
-  'Arts & Humanities',
+  "Technology",
+  "Science",
+  "Health",
+  "Business",
+  "Arts & Humanities",
 ];
 
 export default function UploadPage() {
+  const { toast } = useToast();
   const [showOtherCategory, setShowOtherCategory] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const otherCategory = showOtherCategory
+        ? formData.get("other-category")?.toString()
+        : "";
+      const allCategories = [
+        ...selectedCategories,
+        ...(otherCategory ? otherCategory.split(",").map((c) => c.trim()) : []),
+      ];
+
+      const data = {
+        title: formData.get("title"),
+        abstract: formData.get("abstract"),
+        authors: formData
+          .get("authors")
+          ?.toString()
+          .split(",")
+          .map((a) => a.trim()),
+        categories: allCategories,
+        tags: formData
+          .get("tags")
+          ?.toString()
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        pdfUrl: formData.get("pdf-file"),
+      };
+      console.log("Submitting data:", data);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to upload paper");
+      }
+
+      toast({
+        title: "Success!",
+        description: "Paper uploaded successfully",
+      });
+
+      // Reset the form
+      (e.currentTarget as HTMLFormElement).reset();
+      setSelectedCategories([]);
+      setShowOtherCategory(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to upload paper",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -48,11 +120,12 @@ export default function UploadPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="grid gap-6">
+            <form className="grid gap-6" onSubmit={handleSubmit}>
               <div className="grid gap-2">
                 <Label htmlFor="title">Paper Title</Label>
                 <Input
                   id="title"
+                  name="title"
                   placeholder="A Novel Approach to..."
                   required
                 />
@@ -61,6 +134,7 @@ export default function UploadPage() {
                 <Label htmlFor="authors">Authors</Label>
                 <Input
                   id="authors"
+                  name="authors"
                   placeholder="John Doe, Jane Smith"
                   required
                 />
@@ -72,6 +146,7 @@ export default function UploadPage() {
                 <Label htmlFor="abstract">Abstract</Label>
                 <Textarea
                   id="abstract"
+                  name="abstract"
                   placeholder="Start with a brief summary of your research..."
                   required
                   rows={6}
@@ -80,9 +155,25 @@ export default function UploadPage() {
               <div className="grid gap-2">
                 <Label>Categories</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {popularCategories.map(category => (
+                  {popularCategories.map((category) => (
                     <div key={category} className="flex items-center space-x-2">
-                      <Checkbox id={`category-${category}`} value={category} />
+                      <Checkbox
+                        id={`category-${category}`}
+                        value={category}
+                        checked={selectedCategories.includes(category)}
+                        onCheckedChange={(checked: CheckedState) => {
+                          if (checked) {
+                            setSelectedCategories([
+                              ...selectedCategories,
+                              category,
+                            ]);
+                          } else {
+                            setSelectedCategories(
+                              selectedCategories.filter((c) => c !== category)
+                            );
+                          }
+                        }}
+                      />
                       <Label
                         htmlFor={`category-${category}`}
                         className="font-normal"
@@ -107,9 +198,12 @@ export default function UploadPage() {
                   <div className="mt-2">
                     <Input
                       id="other-category"
+                      name="other-category"
                       placeholder="Please specify your category"
                     />
-                     <p className="text-sm text-muted-foreground mt-2">Separate categories with a comma.</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Separate categories with a comma.
+                    </p>
                   </div>
                 )}
               </div>
@@ -117,6 +211,7 @@ export default function UploadPage() {
                 <Label htmlFor="tags">Tags / Keywords</Label>
                 <Input
                   id="tags"
+                  name="tags"
                   placeholder="Machine Learning, AI, Semantic Search"
                 />
                 <p className="text-sm text-muted-foreground">
@@ -127,6 +222,7 @@ export default function UploadPage() {
                 <Label htmlFor="pdf-file">PDF File</Label>
                 <Input
                   id="pdf-file"
+                  name="pdf-file"
                   type="file"
                   accept=".pdf"
                   required
@@ -134,8 +230,8 @@ export default function UploadPage() {
                 />
               </div>
               <div className="flex justify-end">
-                <Button type="submit" size="lg">
-                  Upload Paper
+                <Button type="submit" size="lg" disabled={loading}>
+                  {loading ? "Uploading..." : "Upload Paper"}
                 </Button>
               </div>
             </form>
