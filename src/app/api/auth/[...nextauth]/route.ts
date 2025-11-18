@@ -42,6 +42,17 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: { strategy: "jwt" },
+
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account) {
+        // Do NOT store tokens in DB — store them in JWT instead
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+  },
+
 }
 const handler = NextAuth(authOptions)
 
