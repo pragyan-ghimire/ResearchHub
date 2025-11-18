@@ -18,24 +18,29 @@ export default function SearchablePaperList({ initialPapers, initialQuery = '' }
   const [title, setTitle] = useState('Recent Uploads');
   const router = useRouter();
 
-  const onSearch = (query: string) => {
-    const params = new URLSearchParams(window.location.search);
-    if (query) {
-      params.set('query', query);
-    } else {
-      params.delete('query');
-    }
-    router.replace(`?${params.toString()}`);
-
-    startTransition(async () => {
-      const results = await handleSearch(query);
-      setPapers(results);
+  const onSearch = async (query: string) => {
+    try {
+      const params = new URLSearchParams(window.location.search);
       if (query) {
-        setTitle(`Search results for "${query}"`);
+        params.set('query', query);
       } else {
-        setTitle('Recent Uploads');
+        params.delete('query');
       }
-    });
+      
+      // Update URL without reload
+      router.replace(`?${params.toString()}`, { scroll: false });
+
+      // Start loading state
+      startTransition(async () => {
+        const results = await handleSearch(query);
+        setPapers(results);
+        setTitle(query ? `Search results for "${query}"` : 'Recent Uploads');
+      });
+    } catch (error) {
+      console.error('Search error:', error);
+      setPapers([]);
+      setTitle('Error loading results');
+    }
   };
   
   useEffect(() => {

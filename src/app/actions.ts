@@ -1,37 +1,124 @@
 'use server';
 
 import { semanticSearch } from '@/ai/flows/semantic-search-research-papers';
-import { getPapers, type Paper } from '@/lib/data';
+import type { Paper } from '@/lib/data';
+import { prisma } from '../../prisma/client';
 
 export async function handleSearch(query: string): Promise<Paper[]> {
   if (!query) {
-    return getPapers();
+    return await prisma.paper.findMany({
+      take: 20,
+      orderBy: { uploadedAt: 'desc' },
+      include: {
+        authors: true,
+        tags: true,
+        categories: true,
+        uploadedBy: true,
+        bookmarkedBy: true
+      }
+    }).then(papers => papers.map(transformPaperResponse));
   }
 
   try {
+    // Get semantically similar titles from AI
     const titles = await semanticSearch(query);
-    const allPapers = getPapers();
+    
+    // Search for papers with semantic matches or keyword matches
+    const papers = await prisma.paper.findMany({
+      where: {
+        OR: [
+          { title: { contains: query } },
+          { abstract: { contains: query } },
+          ...(titles.length > 0 ? [{ title: { in: titles } }] : [])
+        ]
+      },
+      include: {
+        authors: true,
+        tags: true,
+        categories: true,
+        uploadedBy: true,
+        bookmarkedBy: true
+      }
+    });
 
-    // In a real app, you'd have a more robust way to map titles to papers, e.g., using IDs.
-    // For this demo, we filter by exact title match.
-    const results = allPapers.filter(paper => titles.some(title => paper.title.toLowerCase() === title.toLowerCase()));
-
-    // If AI returns results, use them. Otherwise, perform a simple keyword search as a fallback.
-    if (results.length > 0) {
-      return results;
-    } else {
-        return allPapers.filter(paper => 
-            paper.title.toLowerCase().includes(query.toLowerCase()) || 
-            paper.abstract.toLowerCase().includes(query.toLowerCase())
-        );
-    }
+    return papers.map(transformPaperResponse);
   } catch (error) {
-    console.error('Error during semantic search:', error);
-    // Fallback to simple search on error
-    const allPapers = getPapers();
-    return allPapers.filter(paper => 
-        paper.title.toLowerCase().includes(query.toLowerCase()) || 
-        paper.abstract.toLowerCase().includes(query.toLowerCase())
-    );
+    console.error('Error during search:', error);
+    
+    // Fallback to basic keyword search on error
+    const papers = await prisma.paper.findMany({
+      where: {
+        OR: [
+          { title: { contains: query } },
+          { abstract: { contains: query } }
+        ]
+      },
+      include: {
+        authors: true,
+        tags: true,
+        categories: true,
+        uploadedBy: true,
+        bookmarkedBy: true
+      }
+    });
+
+    return papers.map(transformPaperResponse);
   }
 }
+
+function transformPaperResponse(paper: any): Paper {
+  return {
+    id: paper.id,
+    title: paper.title,
+    abstract: paper.abstract,
+    pdfUrl: paper.pdfUrl,
+    publishedAt: paper.publishedAt,
+    uploadedAt: paper.uploadedAt,
+    updatedAt: paper.updatedAt,
+    userId: paper.userId,
+    uploadedBy: {
+      id: paper.uploadedBy.id,
+      name: paper.uploadedBy.name,
+      email: paper.uploadedBy.email,
+      image: paper.uploadedBy.image
+    },
+    bookmarkedBy: paper.bookmarkedBy.map((user: any) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image
+    })),
+    authors: paper.authors.map((author: any) => ({
+      id: author.id,
+      name: author.name
+    })),
+    tags: paper.tags.map((tag: any) => ({
+      id: tag.id,
+      name: tag.name
+    })),
+    categories: paper.categories.map((category: any) => ({
+      id: category.id,
+      name: category.name,
+      description: category.description || undefined
+    })),
+    imageUrl: '/paper-placeholder.jpg',
+    bookmarked: false
+  };
+}
+//       return results;
+//     } else {
+//         return allPapers.filter(paper => 
+//             paper.title.toLowerCase().includes(query.toLowerCase()) || 
+//             paper.abstract.toLowerCase().includes(query.toLowerCase())
+//         );
+//     }
+//   } catch (error) {
+//     console.error('Error during semantic search:', error);
+//     // Fallback to simple search on error
+//     const allPapers = getPapers();
+//     return allPapers.filter(paper => 
+//         paper.title.toLowerCase().includes(query.toLowerCase()) || 
+//         paper.abstract.toLowerCase().includes(query.toLowerCase())
+//     );
+//   }
+// }

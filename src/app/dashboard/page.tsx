@@ -50,15 +50,20 @@ export default function DashboardPage() {
   const transformApiPaper = (paper: any): Paper => ({
     id: paper.id,
     title: paper.title,
-    authors: paper.authors.map((a: any) => a.name),
     abstract: paper.abstract,
+    pdfUrl: paper.pdfUrl,
+    publishedAt: paper.publishedAt,
+    uploadedAt: paper.uploadedAt,
+    updatedAt: paper.updatedAt,
+    userId: paper.uploadedBy.id,
+    uploadedBy: paper.uploadedBy,
+    bookmarkedBy: paper.bookmarkedBy || [],
+    authors: paper.authors,
+    tags: paper.tags,
+    categories: paper.categories,
+    // Client-side properties
     imageUrl: "/paper-placeholder.jpg",
-    pdfUrl: paper.pdfUrl || "",
-    bookmarked: paper.bookmarkedBy?.length > 0,
-    uploadDate: paper.uploadedAt,
-    tags: paper.tags.map((t: any) => t.name),
-    categories: paper.categories.map((c: any) => c.name),
-    uploaderId: paper.uploadedBy?.id,
+    bookmarked: paper.bookmarkedBy?.some((user: any) => user.id === session?.user?.id)
   });
 
   const fetchPapers = async (type: "uploads" | "bookmarks") => {
@@ -108,7 +113,7 @@ export default function DashboardPage() {
     if (session?.user) {
       fetchPapers(activeTab);
     }
-  }, [session?.user, activeTab]); // Only re-run if user ID changes
+  }, [session?.user, activeTab]); // re-run if user or tab changes
 
   return (
     <div className="container mx-auto px-4 py-8">
