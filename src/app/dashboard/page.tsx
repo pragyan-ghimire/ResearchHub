@@ -1,28 +1,119 @@
-import { getBookmarkedPapers, getUploadedPapersByUserId } from '@/lib/data';
-import PaperList from '@/components/papers/paper-list';
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import PaperList from "@/components/papers/paper-list";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Bookmark } from 'lucide-react';
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, Bookmark, AlertCircle } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
+
+import type { Paper } from "@/lib/data";
+
+interface PaginatedResponse {
+  papers: Paper[];
+  pagination: {
+    total: number;
+    pages: number;
+    currentPage: number;
+    limit: number;
+  };
+}
 
 export default function DashboardPage() {
-  // In a real app, you'd get the user ID from the session.
-  const userId = 'user-123';
-  const user = {
-    name: 'Alex Johnson',
-    email: 'alex.j@example.com',
-    avatarUrl: 'https://picsum.photos/seed/avatar/100/100',
-    bio: 'Researcher in the field of Artificial Intelligence and Machine Learning, with a focus on semantic search and natural language processing.',
+  const { data: session } = useSession();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<"uploads" | "bookmarks">(
+    "uploads"
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [papers, setPapers] = useState<{
+    uploads: Paper[];
+    bookmarks: Paper[];
+  }>({
+    uploads: [],
+    bookmarks: [],
+  });
+  const [stats, setStats] = useState({
+    uploads: 0,
+    bookmarks: 0,
+  });
+
+  // Transform API response to match Paper type
+  const transformApiPaper = (paper: any): Paper => ({
+    id: paper.id,
+    title: paper.title,
+    abstract: paper.abstract,
+    pdfUrl: paper.pdfUrl,
+    publishedAt: paper.publishedAt,
+    uploadedAt: paper.uploadedAt,
+    updatedAt: paper.updatedAt,
+    userId: paper.uploadedBy.id,
+    uploadedBy: paper.uploadedBy,
+    bookmarkedBy: paper.bookmarkedBy || [],
+    authors: paper.authors,
+    tags: paper.tags,
+    categories: paper.categories,
+    // Client-side properties
+    imageUrl: "/paper-placeholder.jpg",
+    bookmarked: paper.bookmarkedBy?.some((user: any) => user.id === session?.user?.id)
+  });
+
+  const fetchPapers = async (type: "uploads" | "bookmarks") => {
+    if (!session?.user) return;
+
+    setIsLoading(true);
+
+    try {
+      const endpoint =
+        type === "uploads" ? "/api/papers/user" : "/api/papers/bookmarks";
+      const response = await fetch(`${endpoint}?page=1&limit=10`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: PaginatedResponse = await response.json();
+      setPapers((prev) => ({
+        ...prev,
+        [type]: data.papers.map(transformApiPaper),
+      }));
+      setStats((prev) => ({
+        ...prev,
+        [type]: data.pagination.total,
+      }));
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast({
+        title: "Error",
+        description: `Failed to load ${type}`,
+        variant: "destructive",
+      });
+      setPapers((prev) => ({
+        ...prev,
+        [type]: [],
+      }));
+      setStats((prev) => ({
+        ...prev,
+        [type]: 0,
+      }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const bookmarkedPapers = getBookmarkedPapers();
-  const uploadedPapers = getUploadedPapersByUserId(userId);
+  useEffect(() => {
+    if (session?.user) {
+      fetchPapers(activeTab);
+    }
+  }, [session?.user, activeTab]); // re-run if user or tab changes
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -32,16 +123,23 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center gap-4">
               <Avatar className="h-20 w-20 border-2 border-primary">
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarImage
+                  src={`https://picsum.photos/id/30/200/300`}
+                  alt={session?.user?.name || "User"}
+                />
+                <AvatarFallback>
+                  {session?.user?.name ?? "User".charAt(0)}
+                </AvatarFallback>
               </Avatar>
               <div>
-                <CardTitle className="text-2xl font-headline">{user.name}</CardTitle>
-                <CardDescription>{user.email}</CardDescription>
+                <CardTitle className="text-2xl font-headline">
+                  {session?.user?.name ?? "User"}
+                </CardTitle>
+                <CardDescription>{session?.user?.email ?? ""}</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">{user.bio}</p>
+              <p className="text-sm text-muted-foreground">Change your bio</p>
             </CardContent>
           </Card>
 
@@ -54,7 +152,7 @@ export default function DashboardPage() {
                 <Upload className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{uploadedPapers.length}</div>
+                <div className="text-2xl font-bold">{stats.uploads}</div>
               </CardContent>
             </Card>
             <Card>
@@ -65,7 +163,7 @@ export default function DashboardPage() {
                 <Bookmark className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{bookmarkedPapers.length}</div>
+                <div className="text-2xl font-bold">{stats.bookmarks}</div>
               </CardContent>
             </Card>
           </div>
@@ -73,18 +171,27 @@ export default function DashboardPage() {
 
         {/* Right Column: Papers */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="uploads">
+          <Tabs
+            defaultValue="uploads"
+            onValueChange={(value) =>
+              setActiveTab(value as "uploads" | "bookmarks")
+            }
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="uploads">My Uploads</TabsTrigger>
               <TabsTrigger value="bookmarks">My Bookmarks</TabsTrigger>
             </TabsList>
             <TabsContent value="uploads" className="mt-6">
-                <h2 className="text-2xl font-headline font-bold mb-4">My Uploads</h2>
-                <PaperList papers={uploadedPapers} />
+              <h2 className="text-2xl font-headline font-bold mb-4">
+                My Uploads
+              </h2>
+              <PaperList papers={papers.uploads} isLoading={isLoading} />
             </TabsContent>
             <TabsContent value="bookmarks" className="mt-6">
-                <h2 className="text-2xl font-headline font-bold mb-4">My Bookmarks</h2>
-                <PaperList papers={bookmarkedPapers} />
+              <h2 className="text-2xl font-headline font-bold mb-4">
+                My Bookmarks
+              </h2>
+              <PaperList papers={papers.bookmarks} isLoading={isLoading} />
             </TabsContent>
           </Tabs>
         </div>

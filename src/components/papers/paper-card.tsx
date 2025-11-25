@@ -32,7 +32,9 @@ export default function PaperCard({ paper }: PaperCardProps) {
   const handleDownload = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    window.open(paper.pdfUrl, '_blank');
+    if (paper.pdfUrl) {
+      window.open(paper.pdfUrl, '_blank');
+    }
   }
 
   return (
@@ -41,7 +43,7 @@ export default function PaperCard({ paper }: PaperCardProps) {
         <CardHeader className="p-0">
           <div className="relative h-40 w-full">
             <Image
-              src={paper.imageUrl}
+              src={paper.imageUrl || 'https://picsum.photos/200/300'}
               alt={paper.title}
               fill
               className="object-cover rounded-t-lg"
@@ -56,11 +58,11 @@ export default function PaperCard({ paper }: PaperCardProps) {
         </CardHeader>
         <CardContent className="flex-grow p-4 pt-0">
           <p className="text-sm text-muted-foreground">
-            {paper.authors.join(', ')}
+            {paper.authors.map(author => author.name).join(', ')}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {paper.tags.slice(0, 2).map(tag => (
-              <Badge key={tag} variant="secondary">{tag}</Badge>
+              <Badge key={tag.id} variant="secondary">{tag.name}</Badge>
             ))}
           </div>
         </CardContent>
