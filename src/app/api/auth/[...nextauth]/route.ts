@@ -44,12 +44,23 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
 
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
+      // On initial sign-in, capture the user ID
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+      }
       if (account) {
-        // Do NOT store tokens in DB — store them in JWT instead
         token.accessToken = account.access_token;
       }
       return token;
+    },
+    async session({ session, token }) {
+      // Pass user ID from JWT token to session
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
+      }
+      return session;
     },
   },
 

@@ -214,6 +214,7 @@ export async function getPapersByTags(req: NextRequest) {
 export async function getPapersByCurrentUser(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -223,20 +224,16 @@ export async function getPapersByCurrentUser(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const { page, limit } = PaginationSchema.parse({
-      page: searchParams.get('page'),
-      limit: searchParams.get('limit'),
+      page: searchParams.get("page"),
+      limit: searchParams.get("limit"),
     });
 
     const skip = (page - 1) * limit;
 
     const [papers, total] = await Promise.all([
       prisma.paper.findMany({
-        where: {
-          uploadedBy: {
-            id: session.user.id
-          },
-        },
-        orderBy: { uploadedAt: 'desc' },
+        where: { userId: session.user.id },
+        orderBy: { uploadedAt: "desc" },
         skip,
         take: limit,
         include: {
@@ -244,27 +241,17 @@ export async function getPapersByCurrentUser(req: NextRequest) {
           categories: true,
           tags: true,
           uploadedBy: {
-            select: {
-              id: true,
-              name: true,
-            },
+            select: { id: true, name: true }
           },
           bookmarkedBy: {
-            where: {
-              id: session.user.id
-            },
-            select: {
-              id: true
-            }
+            where: { id: session.user.id },
+            select: { id: true }
           }
-        },
+        }
       }),
+
       prisma.paper.count({
-        where: {
-          uploadedBy: {
-            id: session.user.id
-          },
-        },
+        where: { userId: session.user.id }
       }),
     ]);
 
@@ -277,10 +264,13 @@ export async function getPapersByCurrentUser(req: NextRequest) {
         limit,
       },
     });
+
   } catch (error) {
+    console.error("Error in getPapersByCurrentUser:", error);
     return handleError(error);
   }
 }
+
 
 // GET papers by authors
 export async function getPapersByAuthors(req: NextRequest) {
