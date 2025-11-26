@@ -105,6 +105,27 @@ function transformPaperResponse(paper: any): Paper {
     bookmarked: false
   };
 }
+
+export async function getPaperById(id: string): Promise<Paper | null> {
+  try {
+    const paper = await prisma.paper.findUnique({
+      where: { id },
+      include: {
+        authors: true,
+        tags: true,
+        categories: true,
+        uploadedBy: true,
+        bookmarkedBy: true
+      }
+    });
+
+    if (!paper) return null;
+    return transformPaperResponse(paper);
+  } catch (error) {
+    console.error('Error fetching paper by ID:', error);
+    return null;
+  }
+}
 //       return results;
 //     } else {
 //         return allPapers.filter(paper => 
