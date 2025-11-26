@@ -18,9 +18,10 @@ import { Badge } from '../ui/badge';
 
 type PaperCardProps = {
   paper: Paper;
+  priority?: boolean;
 };
 
-export default function PaperCard({ paper }: PaperCardProps) {
+export default function PaperCard({ paper, priority = false }: PaperCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(paper.bookmarked);
 
   const toggleBookmark = (e: React.MouseEvent) => {
@@ -46,6 +47,8 @@ export default function PaperCard({ paper }: PaperCardProps) {
               src={paper.imageUrl || 'https://picsum.photos/200/300'}
               alt={paper.title}
               fill
+              priority={priority}
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover rounded-t-lg"
               data-ai-hint="research paper"
             />

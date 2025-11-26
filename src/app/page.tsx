@@ -7,18 +7,28 @@ export default async function Home({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  // Get recent papers with full relations
+  // Get recent papers with MINIMAL relations for fast initial render
   const papers = await prisma.paper.findMany({
-    take: 20, // Limit to 20 most recent papers for performance
+    take: 20,
     orderBy: {
       uploadedAt: 'desc'
     },
     include: {
-      authors: true,
-      tags: true,
-      categories: true,
-      uploadedBy: true,
-      bookmarkedBy: true
+      authors: {
+        select: { id: true, name: true }
+      },
+      tags: {
+        select: { id: true, name: true },
+        take: 3
+      },
+      categories: {
+        select: { id: true, name: true },
+        take: 2
+      },
+      uploadedBy: {
+        select: { id: true, name: true, email: true, image: true }
+      }
+      // Don't fetch bookmarkedBy on initial load
     }
   });
 
@@ -34,33 +44,12 @@ export default async function Home({
     uploadedAt: paper.uploadedAt,
     updatedAt: paper.updatedAt,
     userId: paper.userId,
-    uploadedBy: {
-      id: paper.uploadedBy.id,
-      name: paper.uploadedBy.name,
-      email: paper.uploadedBy.email,
-      image: paper.uploadedBy.image
-    },
-    bookmarkedBy: paper.bookmarkedBy.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      image: user.image
-    })),
-    authors: paper.authors.map(author => ({
-      id: author.id,
-      name: author.name
-    })),
-    tags: paper.tags.map(tag => ({
-      id: tag.id,
-      name: tag.name
-    })),
-    categories: paper.categories.map(category => ({
-      id: category.id,
-      name: category.name,
-      description: category.description || undefined
-    })),
-    // Client-side only properties
-    imageUrl: 'https://picsum.photos/200/300',
+    uploadedBy: paper.uploadedBy,
+    bookmarkedBy: [],
+    authors: paper.authors,
+    tags: paper.tags,
+    categories: paper.categories,
+    imageUrl: '/paper-placeholder.jpg',
   }));
 
   return (
