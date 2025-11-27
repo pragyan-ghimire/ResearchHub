@@ -35,6 +35,17 @@ export default function PaperPage({ params }: PaperPageProps) {
     })();
   }, [params]);
 
+  const handleDownloadPdf = () => {
+    if (!paper?.pdfUrl) return;
+    
+    // Use our API endpoint to handle the download
+    const encodedUrl = encodeURIComponent(paper.pdfUrl);
+    const downloadUrl = `/api/papers/download?url=${encodedUrl}`;
+    
+    // Open in new tab to trigger download
+    window.open(downloadUrl, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -118,11 +129,9 @@ export default function PaperPage({ params }: PaperPageProps) {
                     Bookmark
                 </Button>
                 {paper.pdfUrl && (
-                  <Button size="lg" asChild>
-                      <a href={paper.pdfUrl} download>
+                  <Button size="lg" onClick={handleDownloadPdf}>
                       <Download className="mr-2 h-4 w-4" />
                       Download
-                      </a>
                   </Button>
                 )}
             </div>
