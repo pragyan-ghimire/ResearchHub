@@ -1,12 +1,17 @@
 
 import SearchablePaperList from '@/components/papers/searchable-paper-list';
 import { prisma } from '../../prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]/route';
 
 export default async function Home({
   searchParams,
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
+
   // Get recent papers with MINIMAL relations for fast initial render
   const papers = await prisma.paper.findMany({
     take: 20,
@@ -27,8 +32,14 @@ export default async function Home({
       },
       uploadedBy: {
         select: { id: true, name: true, email: true, image: true }
-      }
-      // Don't fetch bookmarkedBy on initial load
+      },
+      // Fetch bookmarkedBy only for current user if logged in
+      ...(userId ? {
+        bookmarkedBy: {
+          where: { id: userId },
+          select: { id: true }
+        }
+      } : {})
     }
   });
 
@@ -45,11 +56,12 @@ export default async function Home({
     updatedAt: paper.updatedAt,
     userId: paper.userId,
     uploadedBy: paper.uploadedBy,
-    bookmarkedBy: [],
+    bookmarkedBy: paper.bookmarkedBy || [],
     authors: paper.authors,
     tags: paper.tags,
     categories: paper.categories,
     imageUrl: '/paper-placeholder.jpg',
+    bookmarked: (paper.bookmarkedBy || []).length > 0,
   }));
 
   return (

@@ -126,6 +126,49 @@ export async function getPaperById(id: string): Promise<Paper | null> {
     return null;
   }
 }
+
+export async function toggleBookmark(paperId: string, userId: string): Promise<{ bookmarked: boolean }> {
+  try {
+    // Check if already bookmarked
+    const existingBookmark = await prisma.paper.findFirst({
+      where: {
+        id: paperId,
+        bookmarkedBy: {
+          some: {
+            id: userId
+          }
+        }
+      }
+    });
+
+    if (existingBookmark) {
+      // Remove bookmark
+      await prisma.paper.update({
+        where: { id: paperId },
+        data: {
+          bookmarkedBy: {
+            disconnect: { id: userId }
+          }
+        }
+      });
+      return { bookmarked: false };
+    } else {
+      // Add bookmark
+      await prisma.paper.update({
+        where: { id: paperId },
+        data: {
+          bookmarkedBy: {
+            connect: { id: userId }
+          }
+        }
+      });
+      return { bookmarked: true };
+    }
+  } catch (error) {
+    console.error('Error toggling bookmark:', error);
+    throw new Error('Failed to toggle bookmark');
+  }
+}
 //       return results;
 //     } else {
 //         return allPapers.filter(paper => 

@@ -5,9 +5,11 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Download, CalendarDays, Users } from 'lucide-react';
+import { Bookmark, Download, CalendarDays, Users, BookCheck } from 'lucide-react';
 import { format } from 'date-fns';
-import { getPaperById } from '@/app/actions';
+import { getPaperById, toggleBookmark } from '@/app/actions';
+import { useSession } from 'next-auth/react';
+import { useToast } from '@/hooks/use-toast';
 import type { Paper } from '@/lib/data';
 
 type PaperPageProps = {
@@ -19,6 +21,10 @@ type PaperPageProps = {
 export default function PaperPage({ params }: PaperPageProps) {
   const [paper, setPaper] = useState<Paper | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+  const { data: session } = useSession();
+  const { toast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -26,6 +32,7 @@ export default function PaperPage({ params }: PaperPageProps) {
       try {
         const data = await getPaperById(resolvedParams.id);
         setPaper(data);
+        setIsBookmarked(data?.bookmarked || false);
       } catch (error) {
         console.error('Failed to fetch paper:', error);
         setPaper(null);
@@ -34,6 +41,37 @@ export default function PaperPage({ params }: PaperPageProps) {
       }
     })();
   }, [params]);
+
+  const handleBookmarkClick = async () => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You need to be logged in to bookmark papers",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!paper) return;
+
+    setIsBookmarkLoading(true);
+    try {
+      const result = await toggleBookmark(paper.id, session.user.id);
+      setIsBookmarked(result.bookmarked);
+      toast({
+        title: "Success",
+        description: result.bookmarked ? "Paper bookmarked" : "Bookmark removed",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update bookmark",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBookmarkLoading(false);
+    }
+  };
 
   const handleDownloadPdf = () => {
     if (!paper?.pdfUrl) return;
@@ -124,9 +162,18 @@ export default function PaperPage({ params }: PaperPageProps) {
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="lg">
-                    <Bookmark className="mr-2 h-4 w-4" />
-                    Bookmark
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={handleBookmarkClick}
+                  disabled={isBookmarkLoading}
+                >
+                    {isBookmarked ? (
+                      <BookCheck className="mr-2 h-4 w-4 text-accent" />
+                    ) : (
+                      <Bookmark className="mr-2 h-4 w-4" />
+                    )}
+                    {isBookmarked ? 'Bookmarked' : 'Bookmark'}
                 </Button>
                 {paper.pdfUrl && (
                   <Button size="lg" onClick={handleDownloadPdf}>

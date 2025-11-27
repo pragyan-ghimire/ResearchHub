@@ -377,6 +377,8 @@ export async function getPapersByBookmarks(req: NextRequest) {
             select: {
               id: true,
               name: true,
+              email: true,
+              image: true,
             },
           },
           bookmarkedBy: {

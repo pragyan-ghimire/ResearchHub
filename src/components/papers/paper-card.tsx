@@ -15,6 +15,9 @@ import { Button } from '@/components/ui/button';
 import { Bookmark, Download, BookCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
+import { useSession } from 'next-auth/react';
+import { useToast } from '@/hooks/use-toast';
+import { toggleBookmark as toggleBookmarkAction } from '@/app/actions';
 
 type PaperCardProps = {
   paper: Paper;
@@ -23,11 +26,40 @@ type PaperCardProps = {
 
 export default function PaperCard({ paper, priority = false }: PaperCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(paper.bookmarked);
+  const [isLoading, setIsLoading] = useState(false);
+  const { data: session } = useSession();
+  const { toast } = useToast();
 
-  const toggleBookmark = (e: React.MouseEvent) => {
+  const handleToggleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsBookmarked(!isBookmarked);
+
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You need to be logged in to bookmark papers",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await toggleBookmarkAction(paper.id, session.user.id);
+      setIsBookmarked(result.bookmarked);
+      toast({
+        title: "Success",
+        description: result.bookmarked ? "Paper bookmarked" : "Bookmark removed",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update bookmark",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleDownload = (e: React.MouseEvent) => {
@@ -73,7 +105,8 @@ export default function PaperCard({ paper, priority = false }: PaperCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleBookmark}
+            onClick={handleToggleBookmark}
+            disabled={isLoading}
             aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
             className="text-muted-foreground hover:text-primary"
           >

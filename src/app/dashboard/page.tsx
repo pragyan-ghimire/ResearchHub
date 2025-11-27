@@ -111,9 +111,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (session?.user) {
+      // Fetch both tabs on initial load to get accurate counts
+      fetchPapers("uploads");
+      fetchPapers("bookmarks");
+    }
+  }, [session?.user]);
+
+  // Only fetch when actively switching to a tab
+  useEffect(() => {
+    if (session?.user && papers[activeTab].length === 0 && stats[activeTab] === 0) {
       fetchPapers(activeTab);
     }
-  }, [session?.user, activeTab]); // re-run if user or tab changes
+  }, [activeTab, session?.user]);
 
   return (
     <div className="container mx-auto px-4 py-8">
