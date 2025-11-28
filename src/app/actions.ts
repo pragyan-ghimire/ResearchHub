@@ -168,6 +168,25 @@ export async function toggleBookmark(paperId: string, userId: string): Promise<{
     throw new Error('Failed to toggle bookmark');
   }
 }
+
+export async function updateUserProfile(userId: string, data: { name?: string; image?: string; bio?: string }): Promise<{ success: boolean; message: string }> {
+  try {
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.image !== undefined) updateData.image = data.image;
+    if (data.bio !== undefined) updateData.bio = data.bio;
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: updateData
+    });
+
+    return { success: true, message: 'Profile updated successfully' };
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw new Error('Failed to update profile');
+  }
+}
 //       return results;
 //     } else {
 //         return allPapers.filter(paper => 

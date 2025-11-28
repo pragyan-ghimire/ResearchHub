@@ -7,6 +7,18 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string
+      bio?: string
     } & DefaultSession["user"]
+  }
+
+  interface User {
+    bio?: string
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string
+    bio?: string
   }
 }

@@ -54,6 +54,9 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.image = user.image;
+        token.name = user.name;
+        token.bio = (user as any).bio;
       }
       if (account) {
         token.accessToken = account.access_token;
@@ -63,7 +66,18 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       // Pass user ID from JWT token to session
       if (session.user && token.id) {
-        session.user.id = token.id as string;
+        // Fetch fresh user data from database to get latest profile updates
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { id: true, name: true, email: true, image: true, bio: true }
+        });
+
+        if (freshUser) {
+          session.user.id = freshUser.id;
+          session.user.image = freshUser.image || "";
+          session.user.name = freshUser.name || "";
+          (session.user as any).bio = freshUser.bio || "";
+        }
       }
       return session;
     },

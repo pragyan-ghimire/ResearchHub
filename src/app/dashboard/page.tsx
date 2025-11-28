@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import PaperList from "@/components/papers/paper-list";
+import ProfileEditDialog from "@/components/dashboard/profile-edit-dialog";
 import {
   Card,
   CardContent,
@@ -129,25 +130,48 @@ export default function DashboardPage() {
         {/* Left Column: User Info & Stats */}
         <div className="lg:col-span-1 space-y-8">
           <Card>
-            <CardHeader className="flex flex-row items-center gap-4">
-              <Avatar className="h-20 w-20 border-2 border-primary">
-                <AvatarImage
-                  src={`https://picsum.photos/id/30/200/300`}
-                  alt={session?.user?.name || "User"}
-                />
-                <AvatarFallback>
-                  {session?.user?.name ?? "User".charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle className="text-2xl font-headline">
-                  {session?.user?.name ?? "User"}
-                </CardTitle>
-                <CardDescription>{session?.user?.email ?? ""}</CardDescription>
+            <CardHeader className="pb-4">
+              <div className="flex flex-row items-start justify-between gap-4">
+                <div className="flex flex-row items-center gap-4">
+                  <Avatar className="h-20 w-20 border-2 border-primary">
+                    <AvatarImage
+                      src={session?.user?.image || ""}
+                      alt={session?.user?.name || "User"}
+                    />
+                    <AvatarFallback>
+                      {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <CardTitle className="text-2xl font-headline">
+                      {session?.user?.name ?? "User"}
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {session?.user?.email ?? ""}
+                    </CardDescription>
+                  </div>
+                </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Change your bio</p>
+            <CardContent className="space-y-4">
+              {session?.user?.bio && (
+                <p className="text-sm text-muted-foreground italic">
+                  {session.user.bio}
+                </p>
+              )}
+              {!session?.user?.bio && (
+                <p className="text-sm text-muted-foreground">
+                  No bio yet. Add one to tell others about yourself!
+                </p>
+              )}
+              <ProfileEditDialog
+                userName={session?.user?.name}
+                userBio={(session?.user as any)?.bio}
+                userImage={session?.user?.image}
+                onUpdate={() => {
+                  // Trigger any necessary refetch
+                }}
+              />
             </CardContent>
           </Card>
 
