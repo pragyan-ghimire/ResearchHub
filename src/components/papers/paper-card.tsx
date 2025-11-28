@@ -6,6 +6,7 @@ import type { Paper } from '@/lib/data';
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -75,6 +76,9 @@ export default function PaperCard({ paper }: PaperCardProps) {
           <CardTitle className="text-lg leading-tight font-headline h-16 overflow-hidden">
             {paper.title}
           </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground line-clamp-3">
+            {paper.abstract}
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow p-4 pt-0">
           <p className="text-sm text-muted-foreground">
