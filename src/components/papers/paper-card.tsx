@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Paper } from '@/lib/data';
 import {
@@ -21,10 +20,9 @@ import { toggleBookmark as toggleBookmarkAction } from '@/app/actions';
 
 type PaperCardProps = {
   paper: Paper;
-  priority?: boolean;
 };
 
-export default function PaperCard({ paper, priority = false }: PaperCardProps) {
+export default function PaperCard({ paper }: PaperCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(paper.bookmarked);
   const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
@@ -73,23 +71,10 @@ export default function PaperCard({ paper, priority = false }: PaperCardProps) {
   return (
     <Link href={`/papers/${paper.id}`} className="block">
       <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-        <CardHeader className="p-0">
-          <div className="relative h-40 w-full">
-            <Image
-              src={paper.imageUrl || 'https://picsum.photos/200/300'}
-              alt={paper.title}
-              fill
-              priority={priority}
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover rounded-t-lg"
-              data-ai-hint="research paper"
-            />
-          </div>
-          <div className="p-4">
-            <CardTitle className="text-lg leading-tight font-headline h-16 overflow-hidden">
-              {paper.title}
-            </CardTitle>
-          </div>
+        <CardHeader className="p-4">
+          <CardTitle className="text-lg leading-tight font-headline h-16 overflow-hidden">
+            {paper.title}
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex-grow p-4 pt-0">
           <p className="text-sm text-muted-foreground">

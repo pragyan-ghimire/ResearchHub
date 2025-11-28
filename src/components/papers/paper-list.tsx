@@ -29,8 +29,8 @@ export default function PaperList({ papers, isLoading = false }: PaperListProps)
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {papers.map((paper, index) => (
-        <PaperCard key={paper.id} paper={paper} priority={index < 4} />
+      {papers.map((paper) => (
+        <PaperCard key={paper.id} paper={paper} />
       ))}
     </div>
   );

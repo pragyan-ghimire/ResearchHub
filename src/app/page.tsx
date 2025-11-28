@@ -60,7 +60,6 @@ export default async function Home({
     authors: paper.authors,
     tags: paper.tags,
     categories: paper.categories,
-    imageUrl: '/paper-placeholder.jpg',
     bookmarked: (paper.bookmarkedBy || []).length > 0,
   }));
 

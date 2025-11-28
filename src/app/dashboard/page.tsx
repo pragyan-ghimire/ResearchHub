@@ -62,7 +62,6 @@ export default function DashboardPage() {
     tags: paper.tags,
     categories: paper.categories,
     // Client-side properties
-    imageUrl: "/paper-placeholder.jpg",
     bookmarked: paper.bookmarkedBy?.some((user: any) => user.id === session?.user?.id)
   });
 

@@ -37,6 +37,5 @@ export interface Paper {
   tags: Tag[];
   categories: Category[];
   // Client-side only properties
-  imageUrl?: string;
   bookmarked?: boolean;
 }

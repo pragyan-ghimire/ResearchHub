@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Bookmark, Download, CalendarDays, Users, BookCheck } from 'lucide-react';
@@ -152,15 +151,6 @@ export default function PaperPage({ params }: PaperPageProps) {
         </div>
         <div className="md:col-span-1">
           <div className="sticky top-24 space-y-4">
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden border shadow-md">
-              <Image
-                src={paper.imageUrl || '/paper-placeholder.jpg'}
-                alt={paper.title}
-                fill
-                className="object-cover"
-                data-ai-hint="research paper abstract"
-              />
-            </div>
             <div className="grid grid-cols-2 gap-2">
                 <Button 
                   variant="outline" 

@@ -101,7 +101,6 @@ function transformPaperResponse(paper: any): Paper {
       name: category.name,
       description: category.description || undefined
     })),
-    imageUrl: '/paper-placeholder.jpg',
     bookmarked: false
   };
 }
