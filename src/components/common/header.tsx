@@ -42,7 +42,7 @@ export default function Header() {
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <ThemeToggle />
-          {status === "authenticated" && <UserMenu />}
+          {status === "authenticated" && <UserMenu username={session?.user?.name} email={session?.user?.email} image = {session?.user?.image} />}
           {status === "unauthenticated" && 
           <>
             <Link href="/api/auth/signin">
@@ -60,16 +60,18 @@ export default function Header() {
   );
 }
 
-function UserMenu() {
-  // In a real app, you'd get user state from an auth provider.
-
+function UserMenu({username, email, image}: {username?: string | null; email?: string | null; image?: string| null}) {
+  const avatarSrc =
+    image && image.trim() !== "" ? image : "/placeholder-user.png"
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src="https://picsum.photos/seed/avatar/100/100" alt="User avatar" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarImage src={avatarSrc} alt="User avatar" />
+            <AvatarFallback>
+              {username?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -77,9 +79,9 @@ function UserMenu() {
           <>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Alex Johnson</p>
+                <p className="text-sm font-medium leading-none">{username}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  alex.j@example.com
+                  {email}
                 </p>
               </div>
             </DropdownMenuLabel>
