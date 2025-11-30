@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
           placeholder: "*****",
         },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials, req) => {
         if (!credentials?.email || !credentials?.password) return null
         const user = await prisma.user.findUnique({
           where: {
@@ -42,7 +42,16 @@ export const authOptions: NextAuthOptions = {
         const passwordMatch = await bcrypt.compare(credentials.password, user.hashedPassword!)
 
 
-        return passwordMatch ? user : null;
+        if (!passwordMatch) return null;
+
+        // Return a NextAuth-compatible user object
+        return {
+          id: user.id,
+          name: user.name ?? undefined,
+          email: user.email ?? undefined,
+          image: user.image ?? undefined,
+          bio: user.bio ?? undefined,
+        };
       },
     }),
   ],

@@ -17,13 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { updateUserProfile } from "@/app/actions";
 import { Loader2, Edit2, Upload } from "lucide-react";
-import dynamic from "next/dynamic";
-
-// Dynamically import CldUploadWidget only if Cloudinary is configured
-const CldUploadWidget = dynamic(
-  () => import("next-cloudinary").then((mod) => mod.CldUploadWidget),
-  { ssr: false, loading: () => null }
-);
+import { CldUploadWidget } from "next-cloudinary";
 
 interface ProfileEditDialogProps {
   userName: string | null | undefined;
@@ -69,25 +63,6 @@ export default function ProfileEditDialog({
         title: "Success",
         description: "Image uploaded successfully",
       });
-    }
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imageUrl = event.target?.result as string;
-        setFormData((prev) => ({
-          ...prev,
-          image: imageUrl,
-        }));
-        toast({
-          title: "Success",
-          description: "Image selected successfully",
-        });
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -161,15 +136,32 @@ export default function ProfileEditDialog({
                   className="h-16 w-16 rounded-full object-cover border border-gray-200"
                 />
               )}
-              <div className="flex flex-col gap-2 flex-1">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileInput}
-                  className="flex-1"
-                />
-                <p className="text-xs text-muted-foreground">PNG, JPG or GIF (max. 5MB)</p>
-              </div>
+             <CldUploadWidget
+              uploadPreset="z409w9o5"
+              options={{
+                maxFiles: 1,
+                sources: ['local'],
+                resourceType: "raw",
+                clientAllowedFormats: ["pdf"],
+                // resourceType: "image",
+                // clientAllowedFormats: ["jpg", "jpeg"],
+                // maxFileSize: 102400, // 100kb in bytes
+              }}
+              onSuccess={handleImageUpload}
+            >
+                {({ open }) => (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => open()}
+                    className="gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Image
+                  </Button>
+                )}
+              </CldUploadWidget>
             </div>
           </div>
 
