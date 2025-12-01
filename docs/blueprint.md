@@ -1,4 +1,4 @@
-# **App Name**: ScholarLink
+# **App Name**: ResearchHub
 
 ## Core Features:
 

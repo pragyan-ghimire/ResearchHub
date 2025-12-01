@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/components/common/theme-provider';
 import AuthProvider from './auth/Provider';
 
 export const metadata: Metadata = {
-  title: 'ScholarLink',
+  title: 'ResearchHub',
   description:
     'A community-driven platform for sharing and discovering research papers.',
 };
