@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,6 +29,8 @@ const popularCategories = [
 
 export default function UploadPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [showOtherCategory, setShowOtherCategory] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -103,10 +106,16 @@ export default function UploadPage() {
         description: "Paper uploaded successfully",
       });
 
-      // Reset the form
-      (e.currentTarget as HTMLFormElement).reset();
+      // Reset the form state and UI
+      formRef.current?.reset();
       setSelectedCategories([]);
       setShowOtherCategory(false);
+      setPdfUrl("");
+
+      // Redirect to home page after 1 second to allow user to see success message
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     } catch (error) {
       toast({
         title: "Error",
@@ -140,7 +149,7 @@ export default function UploadPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="grid gap-6" onSubmit={handleSubmit}>
+            <form className="grid gap-6" onSubmit={handleSubmit} ref={formRef}>
               <div className="grid gap-2">
                 <Label htmlFor="title">Paper Title</Label>
                 <Input
